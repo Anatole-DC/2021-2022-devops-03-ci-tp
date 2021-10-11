@@ -2,15 +2,9 @@ version: 2.1
 jobs:
   build:
     docker:
-<<<<<<< HEAD
-      - image: cimg/node
-        auth:
-          username: Anatole-DC
-=======
       - image: cimg/node:16.10.0
         auth:
           username: adechauveron
->>>>>>> efd5113c2cef6d5b080a3741d5c06527be1056cc
           password: $DOCKER_PASSWORD
 
     steps:
