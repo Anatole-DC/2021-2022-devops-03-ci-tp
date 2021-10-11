@@ -39,7 +39,9 @@ jobs:
             - npm-v1-dependencies-
       - run:
           name: "lint step"
-          command: yarn lint | yarn format:check
+          command: |
+            yarn lint
+            yarn format:check
       - run:
           name: "yarn test"
           command: yarn test
