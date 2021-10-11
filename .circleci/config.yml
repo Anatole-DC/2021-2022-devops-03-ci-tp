@@ -1,0 +1,109 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: cimg/node:16.10.0
+        auth:
+          username: adechauveron
+          password: $DOCKER_PASSWORD
+
+    steps:
+      - checkout
+      - run:
+          name: "Hello World"
+          command: echo "Hello World"
+
+      - restore_cache:
+          keys:
+            - npm-v2-dependencies-{{ checksum "yarn.lock" }}
+            - npm-v2-dependencies-
+      - run:
+          name: "yarn install"
+          command: yarn install
+      - save_cache:
+          key: npm-v2-dependencies-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
+          
+  lint:
+    docker:
+      - image: cimg/node:16.10.0
+        auth:
+          username: adechauveron
+          password: $DOCKER_PASSWORD
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - npm-v2-dependencies-{{ checksum "yarn.lock" }}
+            - npm-v2-dependencies-
+      - run:
+          name: "lint step"
+          command: |
+            yarn lint
+            yarn format:check
+      - run:
+          name: "yarn test"
+          command: yarn test
+      
+  end_to_end_tests:
+    docker:
+      - image: cimg/node:16.10.0
+        auth:
+          username: adechauveron
+          password: $DOCKER_PASSWORD
+      - image: circleci/postgres:9.6.2-alpine
+        auth:
+          username: adechauveron
+          password: $DOCKER_PASSWORD
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: postgres
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - npm-v2-dependencies-{{ checksum "yarn.lock" }}
+            - npm-v2-dependencies-
+      - run:
+          name: "yarn test"
+          command: yarn test:e2e
+          environment:
+            DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+
+  documentation_artifact:
+    docker:
+      - image: cimg/node:16.10.0
+        auth:
+          username: adechauveron
+          password: $DOCKER_PASSWORD
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - npm-v2-dependencies-{{ checksum "yarn.lock" }}
+            - npm-v2-dependencies-
+      - run:
+          name: "yarn doc build"
+          command: |
+            yarn doc:build
+            yarn add save-artifact-to-github
+      - store_artifacts:
+          path: docs
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - lint:
+          requires:
+            - build
+      - end_to_end_tests:
+          requires:
+            - build
+      - documentation_artifact:
+          requires:
+            - end_to_end_tests
+            - lint
