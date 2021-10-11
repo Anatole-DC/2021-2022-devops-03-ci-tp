@@ -3,20 +3,23 @@ jobs:
   build:
     docker:
       - image: cimg/node
-      auth:
-        username: Anatole-DC
-        password: $DOCKER_PASSWORD
+        auth:
+          username: Anatole-DC
+          password: $DOCKER_PASSWORD
 
     steps:
       - checkout
-      - run: echo "Hello World"
+      - run:
+          name: "Hello World"
+          command: echo "Hello World"
 
       - restore_cache:
           keys:
             - npm-v1-dependencies-{{ checksum "yarn.lock" }}
             - npm-v1-dependencies-
-      - run: yarn install
-      - run: bundle install --path vendor/bundle
+      - run:
+          name: "yarn install"
+          command: yarn install
       - save_cache:
           key: npm-v1-dependencies-{{ checksum "yarn.lock" }}
           paths: vendor/bundle
