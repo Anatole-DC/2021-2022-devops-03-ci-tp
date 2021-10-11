@@ -22,7 +22,8 @@ jobs:
           command: yarn install
       - save_cache:
           key: npm-v1-dependencies-{{ checksum "yarn.lock" }}
-          paths: [vendor/bundle]
+          paths:
+            - node_modules
           
   lint:
     docker:
@@ -31,6 +32,7 @@ jobs:
           username: adechauveron
           password: $DOCKER_PASSWORD
     steps:
+      - checkout
       - restore_cache:
           keys:
             - npm-v1-dependencies-{{ checksum "yarn.lock" }}
