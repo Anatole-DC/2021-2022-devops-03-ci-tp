@@ -1,8 +1,9 @@
 version: 2.1
 jobs:
   build:
-    - image: alpine:latest
-    
+    docker:
+      - image: alpine:latest
+
     steps:
       - checkout
       - run: echo "Hello World"
