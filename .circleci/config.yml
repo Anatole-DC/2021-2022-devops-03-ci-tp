@@ -22,4 +22,19 @@ jobs:
           command: yarn install
       - save_cache:
           key: npm-v1-dependencies-{{ checksum "yarn.lock" }}
-          paths: vendor/bundle
+          paths: [vendor/bundle]
+          
+  lint:
+    docker:
+      - image: cimg/node:16.10.0
+        auth:
+          username: adechauveron
+          password: $DOCKER_PASSWORD
+    steps:
+      - run:
+          name: "lint step"
+          command: yarn lint | yarn format:check
+      - run:
+          name: "yarn test"
+          command: yarn test
+      
