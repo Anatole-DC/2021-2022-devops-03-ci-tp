@@ -3,6 +3,9 @@ jobs:
   build:
     docker:
       - image: cimg/node
+      auth:
+        username: Anatole-DC
+        password: $DOCKER_PASSWORD
 
     steps:
       - checkout
