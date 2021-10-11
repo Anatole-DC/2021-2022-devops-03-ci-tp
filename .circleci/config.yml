@@ -86,7 +86,11 @@ jobs:
             - npm-v2-dependencies-
       - run:
           name: "yarn doc build"
-          command: yarn doc:build
+          command: |
+            yarn doc:build
+            yarn add save-artifact-to-github
+      - store_artifacts:
+          path: docs
 
 workflows:
   version: 2
