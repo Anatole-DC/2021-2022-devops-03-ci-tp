@@ -45,9 +45,13 @@ jobs:
       - run:
           name: "yarn test"
           command: yarn test
-          
-  postgres:
+      
+  end_to_end_tests:
     docker:
+      - image: cimg/node:16.10.0
+        auth:
+          username: adechauveron
+          password: $DOCKER_PASSWORD
       - image: circleci/postgres:9.6.2-alpine
         auth:
           username: adechauveron
@@ -58,15 +62,10 @@ jobs:
           POSTGRES_PASSWORD: postgres
     steps:
       - checkout
-      
-  end_to_end_tests:
-    docker:
-      - image: cimg/node:16.10.0
-        auth:
-          username: adechauveron
-          password: $DOCKER_PASSWORD
-    steps:
-      - checkout
+      - restore_cache:
+          keys:
+            - npm-v2-dependencies-{{ checksum "yarn.lock" }}
+            - npm-v2-dependencies-
       - run:
           name: "yarn test"
           command: yarn test:e2e
@@ -81,10 +80,6 @@ workflows:
       - lint:
           requires:
             - build
-      - postgres:
-          requires:
-            - build
       - end_to_end_tests:
           requires:
-            - lint
-            - postgres
+            - build
